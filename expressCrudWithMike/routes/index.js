@@ -1,7 +1,6 @@
-require('dotenv').load();
 var express = require('express');
 var router = express.Router();
-var db = require('monk')('localhost/testCrud');
+var db = require('monk')('localhost/crudWithMike');
 var posts = db.get('posts');
 
 /* GET home page. */
@@ -13,27 +12,15 @@ router.get('/', function (req, res, next) {
 
 });
 
-
 router.get('/post/new', function (req, res, next) {
-    res.render('new', {title: 'New Page'});
+    res.render('new', {title: 'Express'});
 });
 
-router.post('/', function (req, res, next) {
-    if (!req.body.test) {
-        res.render('new', {newError: 'You must fill in the input field.'});
-    }
-    else {
-        posts.insert(req.body);
-        res.redirect('/');
-
-    }
-});
-
-router.get('/posts/:id', function (req, res, next) {
+router.get('/post/:id', function (req, res, next) {
 
 
     posts.findOne({_id: req.params.id}, function (err, doc) {
-        res.render('show', {posts: doc});
+        res.render('show', {post: doc});
     })
 
 });
@@ -41,9 +28,9 @@ router.get('/posts/:id', function (req, res, next) {
 
 router.get('/posts/:id/edit', function (req, res, next) {
     posts.findOne({_id: req.params.id}, function (err, doc) {
-
-        if (err) throw err
-
+        if (err) {
+            throw err
+        }
         res.render('edit', doc)
 
     })
@@ -57,8 +44,8 @@ router.post('/posts/:id/update', function (req, res, next) {
         res.redirect('/')
     })
 
-
 });
+
 
 router.post('/posts/:id/delete', function (req, res, next) {
     posts.remove({_id: req.params.id}, function (err, doc) {
@@ -66,7 +53,17 @@ router.post('/posts/:id/delete', function (req, res, next) {
         res.redirect('/')
 
     })
-
 });
+
+router.post('/', function (req, res, next) {
+    if (!req.body.test) {
+        res.render('new', {newError: 'You must fill in the input field'});
+    }
+    else {
+        posts.insert(req.body);
+        res.redirect('/');
+    }
+});
+
 
 module.exports = router;
